@@ -1,20 +1,47 @@
-// src/layout/DashboardLayout.tsx
+// src/components/Layout/MainLayout.tsx
 import React from 'react';
-import { Outlet } from 'react-router-dom';
-import { Box, Toolbar } from '@mui/material';
+import { Box } from '@mui/material';
 import Sidebar from '../Sidebar/Sidebar';
+import Header from '../Header/Header';
+import Footer from '../Footer/Footer';
+import { Outlet, useLocation } from 'react-router-dom';
+
+const getTitleFromPath = (pathname: string): string => {
+  switch (pathname) {
+    case '/dashboard/home':
+      return 'Inicio';
+    case '/dashboard/pageb':
+      return 'Página B';
+    case '/dashboard/pagec':
+      return 'Página C';
+    default:
+      return '';
+  }
+};
 
 const MainLayout: React.FC = () => {
+  const location = useLocation();
+  const title = getTitleFromPath(location.pathname);
+
   return (
-    <Box sx={{ display: 'flex' }}>
-      {/* Sidebar (Drawer) */}
+    <Box sx={{ display: 'flex', height: '100vh' }}>
+      {/* Sidebar */}
       <Sidebar />
 
-      {/* Contenido principal: se ajusta para dejar espacio al Drawer */}
-      <Box component="main" sx={{ flexGrow: 1, p: 2 }}>
-        {/* Toolbar vacía para que el contenido quede debajo del AppBar si existiera. */}
-        <Toolbar />
-        <Outlet />
+      {/* Contenido principal */}
+      <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+        {/* Header dinámico */}
+        <Header title={title} />
+
+        {/* Contenido */}
+        <Box sx={{ flexGrow: 1, p: 3, overflowY: 'auto', backgroundColor: '#FFF6F3' }}>
+
+          <Outlet />
+          
+        </Box>
+
+        {/* Footer fijo dentro del flujo */}
+        <Footer />
       </Box>
     </Box>
   );

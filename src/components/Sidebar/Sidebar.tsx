@@ -34,6 +34,7 @@ const StyledDrawer = styled(Drawer, {
   '& .MuiDrawer-paper': {
     width: open ? DRAWER_WIDTH_OPEN : DRAWER_WIDTH_CLOSED,
     overflowX: 'hidden',
+    backgroundColor: '#ffe6f0',
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
@@ -135,6 +136,34 @@ const Sidebar: React.FC = () => {
           );
         })}
       </List>
+      <Divider />
+
+{/* Opción de Cerrar sesión */}
+<List sx={{ mt: 'auto' }}>
+  <ListItemButton
+    onClick={() => {
+      // Aquí puedes limpiar datos de sesión, redirigir, etc.
+      console.log('Cerrar sesión');
+      navigate('/login'); // o a donde corresponda
+    }}
+    sx={{
+      justifyContent: open ? 'initial' : 'center',
+      px: 2.5,
+    }}
+  >
+    <ListItemIcon
+      sx={{
+        minWidth: 0,
+        mr: open ? 2 : 'auto',
+        justifyContent: 'center',
+      }}
+    >
+      <Avatar sx={{ width: 24, height: 24 }}>⎋</Avatar> {/* o un icono */}
+    </ListItemIcon>
+    {open && <ListItemText primary="Cerrar sesión" />}
+  </ListItemButton>
+</List>
+
     </StyledDrawer>
   );
 };
