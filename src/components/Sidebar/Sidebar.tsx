@@ -10,7 +10,6 @@ import {
   Avatar,
   Typography,
   IconButton,
-  Divider,
   Box,
   styled,
 } from '@mui/material';
@@ -18,6 +17,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import HomeIcon from '@mui/icons-material/Home';
 import PageviewIcon from '@mui/icons-material/Pageview'; // Icono genérico para PageB
 import InfoIcon from '@mui/icons-material/Info'; // Icono genérico para PageC
+import { useAuth } from '../../context/AuthContext';
 
 // Anchos del Drawer: desplegado vs plegado.
 const DRAWER_WIDTH_OPEN = 240;
@@ -34,7 +34,7 @@ const StyledDrawer = styled(Drawer, {
   '& .MuiDrawer-paper': {
     width: open ? DRAWER_WIDTH_OPEN : DRAWER_WIDTH_CLOSED,
     overflowX: 'hidden',
-    backgroundColor: '#ffe6f0',
+    backgroundColor: '#FAE6FA',
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
@@ -46,25 +46,23 @@ const Sidebar: React.FC = () => {
   const [open, setOpen] = React.useState(true);
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, logout } = useAuth();
 
-  // Definimos las opciones de navegación
-  const navItems = [
-    {
-      text: 'Home',
-      icon: <HomeIcon />,
-      path: '/dashboard/home',
-    },
-    {
-      text: 'Page B',
-      icon: <PageviewIcon />,
-      path: '/dashboard/pageb',
-    },
-    {
-      text: 'Page C',
-      icon: <InfoIcon />,
-      path: '/dashboard/pagec',
-    },
+  // Opciones de menú según el rol
+  const adminNavItems = [
+    { text: 'Universidades', icon: <HomeIcon />, path: '/dashboard/universidades' },
+    { text: 'Facultades', icon: <PageviewIcon />, path: '/dashboard/facultades' },
+    { text: 'Usuarios', icon: <InfoIcon />, path: '/dashboard/usuarios' },
+    { text: 'Cursos', icon: <InfoIcon />, path: '/dashboard/cursos' },
+    { text: 'Profile', icon: <Avatar sx={{ width: 24, height: 24 }} />, path: '/dashboard/profile' },
   ];
+  const teacherNavItems = [
+    { text: 'Mis Cursos', icon: <HomeIcon />, path: '/dashboard/mis-cursos' },
+    { text: 'Estudiantes', icon: <PageviewIcon />, path: '/dashboard/estudiantes' },
+    { text: 'Asistencia', icon: <InfoIcon />, path: '/dashboard/asistencia' },
+    { text: 'Profile', icon: <Avatar sx={{ width: 24, height: 24 }} />, path: '/dashboard/profile' },
+  ];
+  const navItems = user?.role === 'admin' ? adminNavItems : teacherNavItems;
 
   const toggleDrawer = () => {
     setOpen((prev) => !prev);
@@ -85,7 +83,6 @@ const Sidebar: React.FC = () => {
           <MenuIcon />
         </IconButton>
       </Box>
-      <Divider />
 
       {/* Zona de usuario */}
       <Box
@@ -96,17 +93,15 @@ const Sidebar: React.FC = () => {
           py: 2,
         }}
       >
-        <Avatar
-          src="https://via.placeholder.com/80"
-          sx={{ width: 80, height: 80 }}
-        />
+        <Avatar sx={{ width: 56, height: 56 }}>
+          {user?.firstName?.[0] || '?'}
+        </Avatar>
         {open && (
           <Typography variant="subtitle1" sx={{ mt: 1 }}>
-            Juan Pérez
+            {user ? `${user.firstName} ${user.lastName}` : 'Usuario'}
           </Typography>
         )}
       </Box>
-      <Divider />
 
       {/* Lista de opciones */}
       <List>
@@ -136,34 +131,31 @@ const Sidebar: React.FC = () => {
           );
         })}
       </List>
-      <Divider />
 
-{/* Opción de Cerrar sesión */}
-<List sx={{ mt: 'auto' }}>
-  <ListItemButton
-    onClick={() => {
-      // Aquí puedes limpiar datos de sesión, redirigir, etc.
-      console.log('Cerrar sesión');
-      navigate('/login'); // o a donde corresponda
-    }}
-    sx={{
-      justifyContent: open ? 'initial' : 'center',
-      px: 2.5,
-    }}
-  >
-    <ListItemIcon
-      sx={{
-        minWidth: 0,
-        mr: open ? 2 : 'auto',
-        justifyContent: 'center',
-      }}
-    >
-      <Avatar sx={{ width: 24, height: 24 }}>⎋</Avatar> {/* o un icono */}
-    </ListItemIcon>
-    {open && <ListItemText primary="Cerrar sesión" />}
-  </ListItemButton>
-</List>
-
+      {/* Opción de Cerrar sesión */}
+      <List sx={{ mt: 'auto' }}>
+        <ListItemButton
+          onClick={() => {
+            logout();
+            navigate('/');
+          }}
+          sx={{
+            justifyContent: open ? 'initial' : 'center',
+            px: 2.5,
+          }}
+        >
+          <ListItemIcon
+            sx={{
+              minWidth: 0,
+              mr: open ? 2 : 'auto',
+              justifyContent: 'center',
+            }}
+          >
+            <Avatar sx={{ width: 24, height: 24 }}>⎋</Avatar>
+          </ListItemIcon>
+          {open && <ListItemText primary="Cerrar sesión" />}
+        </ListItemButton>
+      </List>
     </StyledDrawer>
   );
 };
