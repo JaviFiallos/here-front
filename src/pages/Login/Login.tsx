@@ -1,15 +1,34 @@
 // src/pages/Login.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Button, Typography, Paper } from '@mui/material';
+import { Box, Button, Typography, Paper, TextField, Alert } from '@mui/material';
+import { useAuth } from '../../context/AuthContext';
+import { loginService } from '../../services/authService';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
-    // Aquí podrías agregar lógica real de autenticación.
-    // Por simplicidad, redirigimos directamente al Dashboard.
-    navigate('/dashboard/home');
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      const data = await loginService(email, password);
+      // Guardar usuario y token en contexto y localStorage
+      const user = data.data.user;
+      const token = data.data.token.accessToken;
+      login(user, token);
+      navigate('/dashboard/profile');
+    } catch (err: any) {
+      setError(err.message || 'Usuario o contraseña incorrectos');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -33,14 +52,43 @@ const Login: React.FC = () => {
         <Typography variant="h5" gutterBottom>
           Iniciar Sesión
         </Typography>
-        {/* Aquí podrías añadir campos de usuario/contraseña, etc. */}
+        <form onSubmit={handleLogin}>
+          <TextField
+            label="Correo electrónico"
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            fullWidth
+            margin="normal"
+            required
+          />
+          <TextField
+            label="Contraseña"
+            type="password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            fullWidth
+            margin="normal"
+            required
+          />
+          {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
+          <Button
+            variant="contained"
+            fullWidth
+            type="submit"
+            sx={{ mt: 2 }}
+            disabled={loading}
+          >
+            {loading ? 'Entrando...' : 'Entrar'}
+          </Button>
+        </form>
         <Button
-          variant="contained"
+          variant="text"
           fullWidth
-          onClick={handleLogin}
-          sx={{ mt: 2 }}
+          sx={{ mt: 1 }}
+          // Sin funcionalidad aún
         >
-          Entrar
+          Registrarse
         </Button>
       </Paper>
     </Box>
