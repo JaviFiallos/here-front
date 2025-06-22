@@ -10,10 +10,6 @@ const getTitleFromPath = (pathname: string): string => {
   switch (pathname) {
     case '/dashboard/home':
       return 'Inicio';
-    case '/dashboard/pageb':
-      return 'Página B';
-    case '/dashboard/pagec':
-      return 'Página C';
     default:
       return '';
   }
