@@ -3,6 +3,10 @@ import { useRoutes, Navigate } from 'react-router-dom';
 import Login from '../pages/Login/Login';
 import MainLayout from '../components/Layout/MainLayout';
 import { useAuth } from '../context/AuthContext';
+import Universities from '../pages/Universities/Universities';
+import Faculties from '../pages/Faculties/Faculties';
+import Users from '../pages/Users/Users';
+import Courses from '../pages/Courses/Courses';
 
 type RequireAuthProps = {
   children: React.ReactNode;
@@ -35,7 +39,7 @@ const AppRoutes = () => {
           path: 'universidades',
           element: (
             <RequireAuth allowedRoles={['admin']}>
-              <div>Universidades</div>
+              <Universities />
             </RequireAuth>
           ),
         },
@@ -43,7 +47,7 @@ const AppRoutes = () => {
           path: 'facultades',
           element: (
             <RequireAuth allowedRoles={['admin']}>
-              <div>Facultades</div>
+              <Faculties />
             </RequireAuth>
           ),
         },
@@ -51,7 +55,7 @@ const AppRoutes = () => {
           path: 'usuarios',
           element: (
             <RequireAuth allowedRoles={['admin']}>
-              <div>Usuarios</div>
+              <Users />
             </RequireAuth>
           ),
         },
@@ -59,7 +63,7 @@ const AppRoutes = () => {
           path: 'cursos',
           element: (
             <RequireAuth allowedRoles={['admin']}>
-              <div>Cursos</div>
+              <Courses />
             </RequireAuth>
           ),
         },

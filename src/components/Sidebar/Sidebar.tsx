@@ -50,17 +50,17 @@ const Sidebar: React.FC = () => {
 
   // Opciones de menú según el rol
   const adminNavItems = [
+    { text: 'Profile', icon: <Avatar sx={{ width: 24, height: 24 }} />, path: '/dashboard/profile' },
     { text: 'Universidades', icon: <HomeIcon />, path: '/dashboard/universidades' },
     { text: 'Facultades', icon: <PageviewIcon />, path: '/dashboard/facultades' },
     { text: 'Usuarios', icon: <InfoIcon />, path: '/dashboard/usuarios' },
     { text: 'Cursos', icon: <InfoIcon />, path: '/dashboard/cursos' },
-    { text: 'Profile', icon: <Avatar sx={{ width: 24, height: 24 }} />, path: '/dashboard/profile' },
   ];
   const teacherNavItems = [
+    { text: 'Profile', icon: <Avatar sx={{ width: 24, height: 24 }} />, path: '/dashboard/profile' },
     { text: 'Mis Cursos', icon: <HomeIcon />, path: '/dashboard/mis-cursos' },
     { text: 'Estudiantes', icon: <PageviewIcon />, path: '/dashboard/estudiantes' },
     { text: 'Asistencia', icon: <InfoIcon />, path: '/dashboard/asistencia' },
-    { text: 'Profile', icon: <Avatar sx={{ width: 24, height: 24 }} />, path: '/dashboard/profile' },
   ];
   const navItems = user?.role === 'admin' ? adminNavItems : teacherNavItems;
 
