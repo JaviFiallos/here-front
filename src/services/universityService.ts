@@ -20,7 +20,7 @@ const getAuthHeaders = () => {
 };
 
 export async function getAllUniversities(): Promise<University[]> {
-  const res = await fetch(`${API_URL_BASE}/universities`, {
+  const res = await fetch(`${API_URL_BASE}/admin/universities`, {
     headers: getAuthHeaders(),
   });
   const data = await res.json();
@@ -42,7 +42,7 @@ export async function getUniversityById(id: string): Promise<University> {
 }
 
 export async function createUniversity(universityData: CreateUniversityData): Promise<University> {
-  const res = await fetch(`${API_URL_BASE}/universities`, {
+  const res = await fetch(`${API_URL_BASE}/admin/universities`, {
     method: 'POST',
     headers: getAuthHeaders(),
     body: JSON.stringify(universityData),
@@ -55,7 +55,7 @@ export async function createUniversity(universityData: CreateUniversityData): Pr
 }
 
 export async function updateUniversity(id: string, universityData: CreateUniversityData): Promise<University> {
-  const res = await fetch(`${API_URL_BASE}/universities/${id}`, {
+  const res = await fetch(`${API_URL_BASE}/admin/universities/${id}`, {
     method: 'PUT',
     headers: getAuthHeaders(),
     body: JSON.stringify(universityData),
@@ -68,7 +68,7 @@ export async function updateUniversity(id: string, universityData: CreateUnivers
 }
 
 export async function deleteUniversity(id: string): Promise<void> {
-  const res = await fetch(`${API_URL_BASE}/universities/${id}`, {
+  const res = await fetch(`${API_URL_BASE}/admin/universities/${id}`, {
     method: 'DELETE',
     headers: getAuthHeaders(),
   });
