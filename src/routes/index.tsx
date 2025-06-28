@@ -1,5 +1,6 @@
 // src/routes/index.tsx
 import { useRoutes, Navigate } from 'react-router-dom';
+import { Box, CircularProgress } from '@mui/material';
 import Login from '../pages/Login/Login';
 import MainLayout from '../components/Layout/MainLayout';
 import { useAuth } from '../context/AuthContext';
@@ -7,6 +8,10 @@ import Universities from '../pages/Universities/Universities';
 import Faculties from '../pages/Faculties/Faculties';
 import Users from '../pages/Users/Users';
 import Courses from '../pages/Courses/Courses';
+import MyCourses from '../pages/Teacher/MyCourses';
+import MyStudents from '../pages/Teacher/MyStudents';
+import Attendance from '../pages/Teacher/Attendance';
+import Profile from '../pages/Profile/Profile';
 
 type RequireAuthProps = {
   children: React.ReactNode;
@@ -14,17 +19,43 @@ type RequireAuthProps = {
 };
 
 function RequireAuth({ children, allowedRoles }: RequireAuthProps) {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
+  
+  // Mostrar loading mientras se valida la sesión
+  if (isLoading) {
+    return (
+      <Box 
+        display="flex" 
+        justifyContent="center" 
+        alignItems="center" 
+        minHeight="100vh"
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+  
   if (!user) return <Navigate to="/" replace />;
   if (allowedRoles && !allowedRoles.includes(user.role)) return <Navigate to="/dashboard" replace />;
   return <>{children}</>;
 }
 
 const AppRoutes = () => {
+  const { isLoading } = useAuth();
+  
   const routes = useRoutes([
     {
       path: '/',
-      element: <Login />,
+      element: isLoading ? (
+        <Box 
+          display="flex" 
+          justifyContent="center" 
+          alignItems="center" 
+          minHeight="100vh"
+        >
+          <CircularProgress />
+        </Box>
+      ) : <Login />,
     },
     {
       path: '/dashboard',
@@ -72,7 +103,7 @@ const AppRoutes = () => {
           path: 'mis-cursos',
           element: (
             <RequireAuth allowedRoles={['teacher']}>
-              <div>Mis Cursos</div>
+              <MyCourses />
             </RequireAuth>
           ),
         },
@@ -80,7 +111,7 @@ const AppRoutes = () => {
           path: 'estudiantes',
           element: (
             <RequireAuth allowedRoles={['teacher']}>
-              <div>Estudiantes</div>
+              <MyStudents />
             </RequireAuth>
           ),
         },
@@ -88,7 +119,7 @@ const AppRoutes = () => {
           path: 'asistencia',
           element: (
             <RequireAuth allowedRoles={['teacher']}>
-              <div>Asistencia</div>
+              <Attendance />
             </RequireAuth>
           ),
         },
@@ -96,8 +127,8 @@ const AppRoutes = () => {
         {
           path: 'profile',
           element: (
-            <RequireAuth allowedRoles={['admin', 'teacher']}>
-              <div>Profile</div>
+            <RequireAuth allowedRoles={['admin', 'teacher', 'student']}>
+              <Profile />
             </RequireAuth>
           ),
         },

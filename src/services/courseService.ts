@@ -1,14 +1,23 @@
-import { API_URL_BASE } from '../utils/api';
+import { API_URL_BASE, apiRequest } from '../utils/api';
+
+export interface CourseSection {
+  id: string;
+  courseId: string;
+  teacherId?: string;
+  name: string;
+  maxStudents: number;
+}
 
 export interface Course {
   id: string;
   name: string;
   description?: string;
-  teacherId?: string;
   facultyId: string;
+  teacherId?: string;
   semester: string;
   createdAt: string;
   updatedAt: string;
+  courseSections?: CourseSection[];
 }
 
 export interface CreateCourseData {
@@ -19,18 +28,8 @@ export interface CreateCourseData {
   semester: string;
 }
 
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
-  return {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`,
-  };
-};
-
 export async function getAllCourses(): Promise<Course[]> {
-  const res = await fetch(`${API_URL_BASE}/courses`, {
-    headers: getAuthHeaders(),
-  });
+  const res = await apiRequest(`${API_URL_BASE}/courses`);
   const data = await res.json();
   if (!res.ok) {
     throw new Error(data.message || 'Error al obtener cursos');
@@ -39,9 +38,7 @@ export async function getAllCourses(): Promise<Course[]> {
 }
 
 export async function getCourseById(id: string): Promise<Course> {
-  const res = await fetch(`${API_URL_BASE}/courses/${id}`, {
-    headers: getAuthHeaders(),
-  });
+  const res = await apiRequest(`${API_URL_BASE}/courses/${id}`);
   const data = await res.json();
   if (!res.ok) {
     throw new Error(data.message || 'Error al obtener curso');
@@ -50,9 +47,8 @@ export async function getCourseById(id: string): Promise<Course> {
 }
 
 export async function createCourse(courseData: CreateCourseData): Promise<Course> {
-  const res = await fetch(`${API_URL_BASE}/courses`, {
+  const res = await apiRequest(`${API_URL_BASE}/courses`, {
     method: 'POST',
-    headers: getAuthHeaders(),
     body: JSON.stringify(courseData),
   });
   const data = await res.json();
@@ -63,9 +59,8 @@ export async function createCourse(courseData: CreateCourseData): Promise<Course
 }
 
 export async function updateCourse(id: string, courseData: CreateCourseData): Promise<Course> {
-  const res = await fetch(`${API_URL_BASE}/courses/${id}`, {
+  const res = await apiRequest(`${API_URL_BASE}/courses/${id}`, {
     method: 'PUT',
-    headers: getAuthHeaders(),
     body: JSON.stringify(courseData),
   });
   const data = await res.json();
@@ -76,12 +71,20 @@ export async function updateCourse(id: string, courseData: CreateCourseData): Pr
 }
 
 export async function deleteCourse(id: string): Promise<void> {
-  const res = await fetch(`${API_URL_BASE}/courses/${id}`, {
+  const res = await apiRequest(`${API_URL_BASE}/courses/${id}`, {
     method: 'DELETE',
-    headers: getAuthHeaders(),
   });
   if (!res.ok) {
     const data = await res.json();
     throw new Error(data.message || 'Error al eliminar curso');
   }
+}
+
+export async function getSectionsByTeacher(teacherId: string): Promise<CourseSection[]> {
+  const res = await apiRequest(`${API_URL_BASE}/courses/teacher/${teacherId}/sections`);
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.message || 'Error al obtener las secciones del profesor');
+  }
+  return data.data;
 } 

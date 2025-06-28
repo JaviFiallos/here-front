@@ -50,15 +50,13 @@ const Faculties: React.FC = () => {
   const [universities, setUniversities] = useState<University[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUniversity, setSelectedUniversity] = useState<string>('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const [editingFaculty, setEditingFaculty] = useState<Faculty | null>(null);
   const [formData, setFormData] = useState<CreateFacultyData>({
     universityId: '',
     name: '',
-    locationLat: 0,
-    locationLng: 0,
+    description: '',
   });
 
   useEffect(() => {
@@ -86,7 +84,6 @@ const Faculties: React.FC = () => {
   }, [searchTerm, selectedUniversity, faculties]);
 
   const loadData = async () => {
-    setLoading(true);
     try {
       const [facultiesData, universitiesData] = await Promise.all([
         getAllFaculties(),
@@ -107,8 +104,6 @@ const Faculties: React.FC = () => {
       setError('');
     } catch (err: any) {
       setError(err.message);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -118,16 +113,14 @@ const Faculties: React.FC = () => {
       setFormData({
         universityId: faculty.universityId,
         name: faculty.name,
-        locationLat: faculty.locationLat,
-        locationLng: faculty.locationLng,
+        description: faculty.description || '',
       });
     } else {
       setEditingFaculty(null);
       setFormData({
         universityId: '',
         name: '',
-        locationLat: 0,
-        locationLng: 0,
+        description: '',
       });
     }
     setOpenDialog(true);
@@ -139,8 +132,7 @@ const Faculties: React.FC = () => {
     setFormData({
       universityId: '',
       name: '',
-      locationLat: 0,
-      locationLng: 0,
+      description: '',
     });
   };
 
@@ -224,8 +216,6 @@ const Faculties: React.FC = () => {
               <TableCell>N°</TableCell>
               <TableCell>Facultad</TableCell>
               <TableCell>Universidad</TableCell>
-              <TableCell>Latitud</TableCell>
-              <TableCell>Longitud</TableCell>
               <TableCell>Acciones</TableCell>
             </TableRow>
           </TableHead>
@@ -233,15 +223,29 @@ const Faculties: React.FC = () => {
             {filteredFaculties.map((faculty, index) => (
               <TableRow key={faculty.id}>
                 <TableCell>{index + 1}</TableCell>
-                <TableCell>{faculty.name}</TableCell>
-                <TableCell>{faculty.universityName}</TableCell>
-                <TableCell>{faculty.locationLat}</TableCell>
-                <TableCell>{faculty.locationLng}</TableCell>
                 <TableCell>
-                  <IconButton onClick={() => handleOpenDialog(faculty)}>
+                  <Box>
+                    <Typography variant="subtitle2">{faculty.name}</Typography>
+                    {faculty.description && (
+                      <Typography variant="body2" color="text.secondary">
+                        {faculty.description}
+                      </Typography>
+                    )}
+                  </Box>
+                </TableCell>
+                <TableCell>{faculty.universityName}</TableCell>
+                <TableCell>
+                  <IconButton
+                    size="small"
+                    onClick={() => handleOpenDialog(faculty)}
+                  >
                     <EditIcon />
                   </IconButton>
-                  <IconButton onClick={() => handleDelete(faculty.id)}>
+                  <IconButton
+                    size="small"
+                    onClick={() => handleDelete(faculty.id)}
+                    color="error"
+                  >
                     <DeleteIcon />
                   </IconButton>
                 </TableCell>
@@ -253,16 +257,32 @@ const Faculties: React.FC = () => {
 
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
         <DialogTitle>
-          {editingFaculty ? 'Editar Facultad' : 'Crear Facultad'}
+          {editingFaculty ? 'Editar Facultad' : 'Crear Nueva Facultad'}
         </DialogTitle>
         <DialogContent>
-          <FormControl fullWidth margin="dense">
+          <TextField
+            label="Nombre de la facultad"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            fullWidth
+            margin="normal"
+            required
+          />
+          <TextField
+            label="Descripción"
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            fullWidth
+            margin="normal"
+            multiline
+            rows={3}
+          />
+          <FormControl fullWidth margin="normal" required>
             <InputLabel>Universidad</InputLabel>
             <Select
               value={formData.universityId}
               label="Universidad"
               onChange={(e) => setFormData({ ...formData, universityId: e.target.value })}
-              required
             >
               {universities.map((university) => (
                 <MenuItem key={university.id} value={university.id}>
@@ -271,32 +291,6 @@ const Faculties: React.FC = () => {
               ))}
             </Select>
           </FormControl>
-          <TextField
-            margin="dense"
-            label="Nombre de la facultad"
-            fullWidth
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            required
-          />
-          <TextField
-            margin="dense"
-            label="Latitud"
-            type="number"
-            fullWidth
-            value={formData.locationLat}
-            onChange={(e) => setFormData({ ...formData, locationLat: parseFloat(e.target.value) || 0 })}
-            required
-          />
-          <TextField
-            margin="dense"
-            label="Longitud"
-            type="number"
-            fullWidth
-            value={formData.locationLng}
-            onChange={(e) => setFormData({ ...formData, locationLng: parseFloat(e.target.value) || 0 })}
-            required
-          />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog}>Cancelar</Button>

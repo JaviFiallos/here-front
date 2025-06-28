@@ -1,34 +1,21 @@
-import { API_URL_BASE } from '../utils/api';
+import { API_URL_BASE, apiRequest } from '../utils/api';
 
 export interface Faculty {
   id: string;
-  universityId: string;
   name: string;
-  locationLat: number;
-  locationLng: number;
-  createdAt: string;
-  updatedAt: string;
+  description: string;
+  universityId: string;
+  universityName?: string;
 }
 
 export interface CreateFacultyData {
-  universityId: string;
   name: string;
-  locationLat: number;
-  locationLng: number;
+  description: string;
+  universityId: string;
 }
 
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
-  return {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`,
-  };
-};
-
 export async function getAllFaculties(): Promise<Faculty[]> {
-  const res = await fetch(`${API_URL_BASE}/faculties`, {
-    headers: getAuthHeaders(),
-  });
+  const res = await apiRequest(`${API_URL_BASE}/faculties`);
   const data = await res.json();
   if (!res.ok) {
     throw new Error(data.message || 'Error al obtener facultades');
@@ -37,9 +24,7 @@ export async function getAllFaculties(): Promise<Faculty[]> {
 }
 
 export async function getFacultyById(id: string): Promise<Faculty> {
-  const res = await fetch(`${API_URL_BASE}/faculties/${id}`, {
-    headers: getAuthHeaders(),
-  });
+  const res = await apiRequest(`${API_URL_BASE}/faculties/${id}`);
   const data = await res.json();
   if (!res.ok) {
     throw new Error(data.message || 'Error al obtener facultad');
@@ -48,9 +33,7 @@ export async function getFacultyById(id: string): Promise<Faculty> {
 }
 
 export async function getFacultiesByUniversity(universityId: string): Promise<Faculty[]> {
-  const res = await fetch(`${API_URL_BASE}/faculties/university/${universityId}`, {
-    headers: getAuthHeaders(),
-  });
+  const res = await apiRequest(`${API_URL_BASE}/faculties/university/${universityId}`);
   const data = await res.json();
   if (!res.ok) {
     throw new Error(data.message || 'Error al obtener facultades de la universidad');
@@ -59,9 +42,8 @@ export async function getFacultiesByUniversity(universityId: string): Promise<Fa
 }
 
 export async function createFaculty(facultyData: CreateFacultyData): Promise<Faculty> {
-  const res = await fetch(`${API_URL_BASE}/faculties`, {
+  const res = await apiRequest(`${API_URL_BASE}/faculties`, {
     method: 'POST',
-    headers: getAuthHeaders(),
     body: JSON.stringify(facultyData),
   });
   const data = await res.json();
@@ -72,9 +54,8 @@ export async function createFaculty(facultyData: CreateFacultyData): Promise<Fac
 }
 
 export async function updateFaculty(id: string, facultyData: CreateFacultyData): Promise<Faculty> {
-  const res = await fetch(`${API_URL_BASE}/faculties/${id}`, {
+  const res = await apiRequest(`${API_URL_BASE}/faculties/${id}`, {
     method: 'PUT',
-    headers: getAuthHeaders(),
     body: JSON.stringify(facultyData),
   });
   const data = await res.json();
@@ -85,9 +66,8 @@ export async function updateFaculty(id: string, facultyData: CreateFacultyData):
 }
 
 export async function deleteFaculty(id: string): Promise<void> {
-  const res = await fetch(`${API_URL_BASE}/faculties/${id}`, {
+  const res = await apiRequest(`${API_URL_BASE}/faculties/${id}`, {
     method: 'DELETE',
-    headers: getAuthHeaders(),
   });
   if (!res.ok) {
     const data = await res.json();

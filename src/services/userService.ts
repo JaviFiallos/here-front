@@ -1,4 +1,4 @@
-import { API_URL_BASE } from '../utils/api';
+import { API_URL_BASE, apiRequest } from '../utils/api';
 
 export interface User {
   id: string;
@@ -6,8 +6,8 @@ export interface User {
   firstName: string;
   lastName: string;
   role: 'admin' | 'teacher' | 'student';
-  createdAt: string;
-  updatedAt: string;
+  universityId?: string;
+  facultyId?: string;
 }
 
 export interface CreateUserData {
@@ -16,20 +16,12 @@ export interface CreateUserData {
   firstName: string;
   lastName: string;
   role: 'admin' | 'teacher' | 'student';
+  universityId?: string;
+  facultyId?: string;
 }
 
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
-  return {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`,
-  };
-};
-
 export async function getAllUsers(): Promise<User[]> {
-  const res = await fetch(`${API_URL_BASE}/admin/users`, {
-    headers: getAuthHeaders(),
-  });
+  const res = await apiRequest(`${API_URL_BASE}/admin/users`);
   const data = await res.json();
   if (!res.ok) {
     throw new Error(data.message || 'Error al obtener usuarios');
@@ -38,9 +30,7 @@ export async function getAllUsers(): Promise<User[]> {
 }
 
 export async function getUserById(id: string): Promise<User> {
-  const res = await fetch(`${API_URL_BASE}/admin/users/${id}`, {
-    headers: getAuthHeaders(),
-  });
+  const res = await apiRequest(`${API_URL_BASE}/admin/users/${id}`);
   const data = await res.json();
   if (!res.ok) {
     throw new Error(data.message || 'Error al obtener usuario');
@@ -49,9 +39,8 @@ export async function getUserById(id: string): Promise<User> {
 }
 
 export async function createUser(userData: CreateUserData): Promise<User> {
-  const res = await fetch(`${API_URL_BASE}/admin/users`, {
+  const res = await apiRequest(`${API_URL_BASE}/admin/users`, {
     method: 'POST',
-    headers: getAuthHeaders(),
     body: JSON.stringify(userData),
   });
   const data = await res.json();
@@ -62,9 +51,8 @@ export async function createUser(userData: CreateUserData): Promise<User> {
 }
 
 export async function updateUser(id: string, userData: Omit<CreateUserData, 'password'>): Promise<User> {
-  const res = await fetch(`${API_URL_BASE}/admin/users/${id}`, {
+  const res = await apiRequest(`${API_URL_BASE}/admin/users/${id}`, {
     method: 'PUT',
-    headers: getAuthHeaders(),
     body: JSON.stringify(userData),
   });
   const data = await res.json();
@@ -75,14 +63,22 @@ export async function updateUser(id: string, userData: Omit<CreateUserData, 'pas
 }
 
 export async function deleteUser(id: string): Promise<void> {
-  const res = await fetch(`${API_URL_BASE}/admin/users/${id}`, {
+  const res = await apiRequest(`${API_URL_BASE}/admin/users/${id}`, {
     method: 'DELETE',
-    headers: getAuthHeaders(),
   });
   if (!res.ok) {
     const data = await res.json();
     throw new Error(data.message || 'Error al eliminar usuario');
   }
+}
+
+export async function getStudentsBySection(sectionId: string) {
+  const res = await apiRequest(`${API_URL_BASE}/courses/sections/${sectionId}/students`);
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.message || 'Error al obtener estudiantes de la sección');
+  }
+  return data.data;
 }
 
 export const roleTranslations = {

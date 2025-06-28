@@ -42,7 +42,6 @@ const Users: React.FC = () => {
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState<string>('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -79,15 +78,12 @@ const Users: React.FC = () => {
   }, [searchTerm, selectedRole, users]);
 
   const loadUsers = async () => {
-    setLoading(true);
     try {
       const data = await getAllUsers();
       setUsers(data);
       setError('');
     } catch (err: any) {
       setError(err.message);
-    } finally {
-      setLoading(false);
     }
   };
 

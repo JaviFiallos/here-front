@@ -56,7 +56,6 @@ const Courses: React.FC = () => {
   const [teachers, setTeachers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFaculty, setSelectedFaculty] = useState<string>('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
@@ -93,7 +92,6 @@ const Courses: React.FC = () => {
   }, [searchTerm, selectedFaculty, courses]);
 
   const loadData = async () => {
-    setLoading(true);
     try {
       const [coursesData, facultiesData, usersData] = await Promise.all([
         getAllCourses(),
@@ -121,8 +119,6 @@ const Courses: React.FC = () => {
       setError('');
     } catch (err: any) {
       setError(err.message);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -250,15 +246,31 @@ const Courses: React.FC = () => {
             {filteredCourses.map((course, index) => (
               <TableRow key={course.id}>
                 <TableCell>{index + 1}</TableCell>
-                <TableCell>{course.name}</TableCell>
+                <TableCell>
+                  <Box>
+                    <Typography variant="subtitle2">{course.name}</Typography>
+                    {course.description && (
+                      <Typography variant="body2" color="text.secondary">
+                        {course.description}
+                      </Typography>
+                    )}
+                  </Box>
+                </TableCell>
                 <TableCell>{course.facultyName}</TableCell>
                 <TableCell>{course.teacherName}</TableCell>
                 <TableCell>{course.semester}</TableCell>
                 <TableCell>
-                  <IconButton onClick={() => handleOpenDialog(course)}>
+                  <IconButton
+                    size="small"
+                    onClick={() => handleOpenDialog(course)}
+                  >
                     <EditIcon />
                   </IconButton>
-                  <IconButton onClick={() => handleDelete(course.id)}>
+                  <IconButton
+                    size="small"
+                    onClick={() => handleDelete(course.id)}
+                    color="error"
+                  >
                     <DeleteIcon />
                   </IconButton>
                 </TableCell>
@@ -270,33 +282,32 @@ const Courses: React.FC = () => {
 
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
         <DialogTitle>
-          {editingCourse ? 'Editar Curso' : 'Crear Curso'}
+          {editingCourse ? 'Editar Curso' : 'Crear Nuevo Curso'}
         </DialogTitle>
         <DialogContent>
           <TextField
-            margin="dense"
             label="Nombre del curso"
-            fullWidth
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            fullWidth
+            margin="normal"
             required
           />
           <TextField
-            margin="dense"
             label="Descripción"
-            fullWidth
-            multiline
-            rows={3}
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            fullWidth
+            margin="normal"
+            multiline
+            rows={3}
           />
-          <FormControl fullWidth margin="dense">
+          <FormControl fullWidth margin="normal" required>
             <InputLabel>Facultad</InputLabel>
             <Select
               value={formData.facultyId}
               label="Facultad"
               onChange={(e) => setFormData({ ...formData, facultyId: e.target.value })}
-              required
             >
               {faculties.map((faculty) => (
                 <MenuItem key={faculty.id} value={faculty.id}>
@@ -305,7 +316,7 @@ const Courses: React.FC = () => {
               ))}
             </Select>
           </FormControl>
-          <FormControl fullWidth margin="dense">
+          <FormControl fullWidth margin="normal">
             <InputLabel>Profesor</InputLabel>
             <Select
               value={formData.teacherId}
@@ -320,13 +331,12 @@ const Courses: React.FC = () => {
               ))}
             </Select>
           </FormControl>
-          <FormControl fullWidth margin="dense">
+          <FormControl fullWidth margin="normal" required>
             <InputLabel>Semestre</InputLabel>
             <Select
               value={formData.semester}
               label="Semestre"
               onChange={(e) => setFormData({ ...formData, semester: e.target.value })}
-              required
             >
               <MenuItem value="Primero">Primero</MenuItem>
               <MenuItem value="Segundo">Segundo</MenuItem>

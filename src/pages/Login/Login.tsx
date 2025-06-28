@@ -1,5 +1,5 @@
 // src/pages/Login.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Button, Typography, Paper, TextField, Alert } from '@mui/material';
 import { useAuth } from '../../context/AuthContext';
@@ -7,11 +7,18 @@ import { loginService } from '../../services/authService';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, user, isLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Redirigir si ya hay una sesión activa
+  useEffect(() => {
+    if (!isLoading && user) {
+      navigate('/dashboard/profile');
+    }
+  }, [user, isLoading, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,6 +37,23 @@ const Login: React.FC = () => {
       setLoading(false);
     }
   };
+
+  // Mostrar loading mientras se verifica la sesión
+  if (isLoading) {
+    return (
+      <Box
+        sx={{
+          height: '100vh',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: '#f5f5f5',
+        }}
+      >
+        <Typography>Cargando...</Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box
