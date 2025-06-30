@@ -73,7 +73,7 @@ export async function deleteUser(id: string): Promise<void> {
 }
 
 export async function getStudentsBySection(sectionId: string) {
-  const res = await apiRequest(`${API_URL_BASE}/courses/sections/${sectionId}/students`);
+  const res = await apiRequest(`${API_URL_BASE}/courses/sections/${sectionId}/enrollments`);
   const data = await res.json();
   if (!res.ok) {
     throw new Error(data.message || 'Error al obtener estudiantes de la sección');

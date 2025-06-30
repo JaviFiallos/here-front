@@ -17,6 +17,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import HomeIcon from '@mui/icons-material/Home';
 import PageviewIcon from '@mui/icons-material/Pageview'; // Icono genérico para PageB
 import InfoIcon from '@mui/icons-material/Info'; // Icono genérico para PageC
+import LogoutIcon from '@mui/icons-material/Logout';
 import { useAuth } from '../../context/AuthContext';
 
 // Anchos del Drawer: desplegado vs plegado.
@@ -34,7 +35,7 @@ const StyledDrawer = styled(Drawer, {
   '& .MuiDrawer-paper': {
     width: open ? DRAWER_WIDTH_OPEN : DRAWER_WIDTH_CLOSED,
     overflowX: 'hidden',
-    backgroundColor: '#FAE6FA',
+    backgroundColor: '#F4F1F8',
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
@@ -69,7 +70,7 @@ const Sidebar: React.FC = () => {
   };
 
   return (
-    <StyledDrawer variant="permanent" open={open}>
+    <StyledDrawer variant="permanent" open={open} sx={{background:'#f1f1f1'}}>
       {/* Botón para desplegar/plegar */}
       <Box
         sx={{
@@ -151,7 +152,7 @@ const Sidebar: React.FC = () => {
               justifyContent: 'center',
             }}
           >
-            <Avatar sx={{ width: 24, height: 24 }}>⎋</Avatar>
+            <LogoutIcon sx={{ width: 24, height: 24 }} />
           </ListItemIcon>
           {open && <ListItemText primary="Cerrar sesión" />}
         </ListItemButton>

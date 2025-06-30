@@ -79,23 +79,23 @@ const MyCourses: React.FC = () => {
       )}
 
       {myCourses.length > 0 && (
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} sx={{background:'#fff'}}>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Nombre del Curso</TableCell>
-                <TableCell>Descripción</TableCell>
-                <TableCell>Semestre</TableCell>
-                <TableCell>Facultad</TableCell>
+                <TableCell  sx={{border:'1.5px solid #1976d2'}}>Nombre del Curso</TableCell>
+                <TableCell  sx={{border:'1.5px solid #1976d2'}}>Descripción</TableCell>
+                <TableCell  sx={{border:'1.5px solid #1976d2'}}>Semestre</TableCell>
+                <TableCell  sx={{border:'1.5px solid #1976d2'}}>Facultad</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {myCourses.map(course => (
                 <TableRow key={course.id}>
-                  <TableCell>{course.name}</TableCell>
-                  <TableCell>{course.description}</TableCell>
-                  <TableCell>{course.semester}</TableCell>
-                  <TableCell>{course.facultyName}</TableCell>
+                  <TableCell  sx={{border:'1.5px solid #1976d2'}}>{course.name}</TableCell>
+                  <TableCell  sx={{border:'1.5px solid #1976d2'}}>{course.description}</TableCell>
+                  <TableCell  sx={{border:'1.5px solid #1976d2'}}>{course.semester}</TableCell>
+                  <TableCell  sx={{border:'1.5px solid #1976d2'}}>{course.facultyName}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

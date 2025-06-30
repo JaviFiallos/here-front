@@ -18,7 +18,7 @@ export interface CreateUniversityData {
 }
 
 export async function getAllUniversities(): Promise<University[]> {
-  const res = await apiRequest(`${API_URL_BASE}/admin/universities`);
+  const res = await apiRequest(`${API_URL_BASE}/universities`);
   const data = await res.json();
   if (!res.ok) {
     throw new Error(data.message || 'Error al obtener universidades');

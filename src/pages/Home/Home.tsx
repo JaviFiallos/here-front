@@ -10,6 +10,7 @@ const Home: React.FC = () => {
         sx={{
           p: 3,
           textAlign: 'center',
+          border:'none'
         }}
       >
         <Typography variant="h4" gutterBottom>

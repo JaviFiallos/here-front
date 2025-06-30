@@ -7,10 +7,10 @@ const Footer: React.FC = () => {
     <Box
       component="footer"
       sx={{
-        py: 2,
+        py: 1,
         textAlign: 'center',
-        mt: 2,
-        backgroundColor: '#E0CAD3',
+        mt: 1,
+        backgroundColor: '#f1f1f1',
       }}
     >
       <Typography variant="body2" color="text.secondary">
