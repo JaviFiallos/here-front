@@ -12,26 +12,26 @@ import {
   ListItem,
   ListItemText,
 } from '@mui/material';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { es } from 'date-fns/locale';
 import { getAllCourses, getSectionsByTeacher, type CourseSection } from '../../services/courseService';
 import { useAuth } from '../../context/AuthContext';
 import { getAttendanceBySchedule } from '../../services/attendanceService';
 import type { Attendance } from '../../services/attendanceService';
 import { getStudentsBySection } from '../../services/userService';
+import { getSchedulesBySection, type Schedule } from '../../services/scheduleService';
 
 interface EnrichedSection extends CourseSection {
   courseName: string;
 }
 
+const dayNames = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+
 const Attendance: React.FC = () => {
   const [mySections, setMySections] = useState<EnrichedSection[]>([]);
   const [selectedSection, setSelectedSection] = useState<string>('');
-  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const [students, setStudents] = useState<any[]>([]);
   const [attendance, setAttendance] = useState<Attendance[]>([]);
+  const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [selectedSchedule, setSelectedSchedule] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { user } = useAuth();
@@ -66,19 +66,36 @@ const Attendance: React.FC = () => {
 
   useEffect(() => {
     if (selectedSection) {
+      // Cargar horarios de la sección
+      getSchedulesBySection(selectedSection)
+        .then(data => {
+          console.log('schedules',data)
+          setSchedules(data)
+        })
+        .catch(() => setSchedules([]));
       // Cargar estudiantes inscritos
       getStudentsBySection(selectedSection)
         .then(data => setStudents((data.enrollments || []).map((e: any) => e.student)))
         .catch(() => setStudents([]));
-      // Cargar asistencia
-      getAttendanceBySchedule(selectedSection)
-        .then(setAttendance)
-        .catch(() => setAttendance([]));
+      setSelectedSchedule('');
+      setAttendance([]);
     } else {
+      setSchedules([]);
+      setSelectedSchedule('');
       setStudents([]);
       setAttendance([]);
     }
   }, [selectedSection]);
+
+  useEffect(() => {
+    if (selectedSchedule) {
+      getAttendanceBySchedule(selectedSchedule)
+        .then(setAttendance)
+        .catch(() => setAttendance([]));
+    } else {
+      setAttendance([]);
+    }
+  }, [selectedSchedule]);
 
   // Función para obtener el estado de un estudiante
   const getEstado = (studentId: string) => {
@@ -99,87 +116,94 @@ const Attendance: React.FC = () => {
   };
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
-      <Box sx={{ p: 3 }}>
-        <Typography variant="h4" gutterBottom>
-          Estado de Asistencia
-        </Typography>
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h4" gutterBottom>
+        Estado de Asistencia
+      </Typography>
 
-        <Typography variant="body1" color="text.primary" sx={{ mb: 3 }}>
-          Visualiza el estado de asistencia de los estudiantes
-        </Typography>
+      <Typography variant="body1" color="text.primary" sx={{ mb: 3 }}>
+        Visualiza el estado de asistencia de los estudiantes
+      </Typography>
 
-        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-        
-        <Paper sx={{ p: 2, display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
-          <FormControl sx={{ minWidth: 200, flexGrow: 1 }}>
-            <InputLabel>Selecciona una Sección</InputLabel>
-            <Select
-              value={selectedSection}
-              onChange={(e) => setSelectedSection(e.target.value)}
-              label="Selecciona una Sección"
-              disabled={loading || mySections.length === 0}
-            >
-              {mySections.map(section => (
-                <MenuItem key={section.id} value={section.id}>
-                  {section.courseName} - {section.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <DatePicker
-            label="Fecha de la clase"
-            value={selectedDate}
-            onChange={(newDate: Date | null) => setSelectedDate(newDate)}
-          />
-        </Paper>
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      
+      <Paper sx={{ p: 2, display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+        <FormControl sx={{ minWidth: 200, flexGrow: 1 }}>
+          <InputLabel>Selecciona una Sección</InputLabel>
+          <Select
+            value={selectedSection}
+            onChange={(e) => setSelectedSection(e.target.value)}
+            label="Selecciona una Sección"
+            disabled={loading || mySections.length === 0}
+          >
+            {mySections.map(section => (
+              <MenuItem key={section.id} value={section.id}>
+                {section.courseName} - {section.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <FormControl sx={{ minWidth: 250, flexGrow: 1 }} disabled={!selectedSection || schedules.length === 0}>
+          <InputLabel>Selecciona un Horario</InputLabel>
+          <Select
+            value={selectedSchedule}
+            onChange={(e) => setSelectedSchedule(e.target.value)}
+            label="Selecciona un Horario"
+          >
+            {schedules.map(schedule => (
+              <MenuItem key={schedule.id} value={schedule.id}>
+                {`Día: ${dayNames[schedule.dayOfWeek-1]}, ${schedule.startTime.slice(11,16)} - ${schedule.endTime.slice(11,16)}`}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Paper>
 
-        {selectedSection && (
-          <Box>
-            <Typography variant="h6" gutterBottom>
-              Estado de Asistencia - {students.length} estudiantes
-            </Typography>
-            <List>
-              {students.map(student => {
-                const estado = getEstado(student.id);
-                const { color, bg } = getColor(estado);
-                
-                return (
-                  <ListItem key={student.id} divider sx={{ backgroundColor: 'white' , borderRadius: 2, marginBottom: 1}}>
-                    <ListItemText 
-                      primary={`${student.firstName} ${student.lastName}`}
-                      secondary={`ID: ${student.id}`}
-                    />
-                    <Box
-                      sx={{
-                        color,
-                        background: bg,
-                        fontWeight: 'bold',
-                        display: 'inline-block',
-                        minWidth: 100,
-                        textAlign: 'center',
-                        borderRadius: 2,
-                        border: '1px solid #ddd',
-                        px: 2,
-                        py: 0.5,
-                      }}
-                    >
-                      {estado}
-                    </Box>
-                  </ListItem>
-                );
-              })}
-            </List>
-            
-            {students.length === 0 && (
-              <Alert severity="info" sx={{ mt: 2 }}>
-                No hay estudiantes inscritos en esta sección.
-              </Alert>
-            )}
-          </Box>
-        )}
-      </Box>
-    </LocalizationProvider>
+      {selectedSection && selectedSchedule && (
+        <Box>
+          <Typography variant="h6" gutterBottom>
+            Estado de Asistencia - {students.length} estudiantes
+          </Typography>
+          <List>
+            {students.map(student => {
+              const estado = getEstado(student.id);
+              const { color, bg } = getColor(estado);
+              
+              return (
+                <ListItem key={student.id} divider sx={{ backgroundColor: 'white' , borderRadius: 2, marginBottom: 1}}>
+                  <ListItemText 
+                    primary={`${student.firstName} ${student.lastName}`}
+                    secondary={`ID: ${student.id}`}
+                  />
+                  <Box
+                    sx={{
+                      color,
+                      background: bg,
+                      fontWeight: 'bold',
+                      display: 'inline-block',
+                      minWidth: 100,
+                      textAlign: 'center',
+                      borderRadius: 2,
+                      border: '1px solid #ddd',
+                      px: 2,
+                      py: 0.5,
+                    }}
+                  >
+                    {estado}
+                  </Box>
+                </ListItem>
+              );
+            })}
+          </List>
+          
+          {students.length === 0 && (
+            <Alert severity="info" sx={{ mt: 2 }}>
+              No hay estudiantes inscritos en esta sección.
+            </Alert>
+          )}
+        </Box>
+      )}
+    </Box>
   );
 };
 

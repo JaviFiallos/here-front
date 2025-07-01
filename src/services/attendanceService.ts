@@ -15,5 +15,6 @@ export async function getAttendanceBySchedule(scheduleId: string): Promise<Atten
   if (!res.ok) {
     throw new Error(data.message || 'Error al obtener la asistencia');
   }
-  return data.data;
+  console.log(data);
+  return data || [];
 } 
