@@ -12,7 +12,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
       sx={{
         py: 2,
         px: 3,
-        backgroundColor: '#FAE6FA',
+        backgroundColor: 'background.paper',
         borderBottom: '1px solid #ddd',
       }}
     >

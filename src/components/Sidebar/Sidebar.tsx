@@ -17,6 +17,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import HomeIcon from '@mui/icons-material/Home';
 import PageviewIcon from '@mui/icons-material/Pageview'; // Icono genérico para PageB
 import InfoIcon from '@mui/icons-material/Info'; // Icono genérico para PageC
+import LogoutIcon from '@mui/icons-material/Logout';
 import { useAuth } from '../../context/AuthContext';
 
 // Anchos del Drawer: desplegado vs plegado.
@@ -31,10 +32,12 @@ const StyledDrawer = styled(Drawer, {
   flexShrink: 0,
   whiteSpace: 'nowrap',
   boxSizing: 'border-box',
+  borderRadius: 0,
   '& .MuiDrawer-paper': {
     width: open ? DRAWER_WIDTH_OPEN : DRAWER_WIDTH_CLOSED,
     overflowX: 'hidden',
-    backgroundColor: '#FAE6FA',
+    background: 'linear-gradient(45deg, #f8f9fa 30%, #e9ecef 90%)',
+    backdropFilter: 'blur(8px)', // Efecto glassmorphism
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
@@ -50,17 +53,17 @@ const Sidebar: React.FC = () => {
 
   // Opciones de menú según el rol
   const adminNavItems = [
+    { text: 'Profile', icon: <Avatar sx={{ width: 24, height: 24 }} />, path: '/dashboard/profile' },
     { text: 'Universidades', icon: <HomeIcon />, path: '/dashboard/universidades' },
     { text: 'Facultades', icon: <PageviewIcon />, path: '/dashboard/facultades' },
     { text: 'Usuarios', icon: <InfoIcon />, path: '/dashboard/usuarios' },
     { text: 'Cursos', icon: <InfoIcon />, path: '/dashboard/cursos' },
-    { text: 'Profile', icon: <Avatar sx={{ width: 24, height: 24 }} />, path: '/dashboard/profile' },
   ];
   const teacherNavItems = [
+    { text: 'Profile', icon: <Avatar sx={{ width: 24, height: 24 }} />, path: '/dashboard/profile' },
     { text: 'Mis Cursos', icon: <HomeIcon />, path: '/dashboard/mis-cursos' },
     { text: 'Estudiantes', icon: <PageviewIcon />, path: '/dashboard/estudiantes' },
     { text: 'Asistencia', icon: <InfoIcon />, path: '/dashboard/asistencia' },
-    { text: 'Profile', icon: <Avatar sx={{ width: 24, height: 24 }} />, path: '/dashboard/profile' },
   ];
   const navItems = user?.role === 'admin' ? adminNavItems : teacherNavItems;
 
@@ -151,7 +154,7 @@ const Sidebar: React.FC = () => {
               justifyContent: 'center',
             }}
           >
-            <Avatar sx={{ width: 24, height: 24 }}>⎋</Avatar>
+            <LogoutIcon sx={{ width: 24, height: 24 }} />
           </ListItemIcon>
           {open && <ListItemText primary="Cerrar sesión" />}
         </ListItemButton>
