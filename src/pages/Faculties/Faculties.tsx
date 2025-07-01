@@ -158,10 +158,18 @@ const Faculties: React.FC = () => {
     try {
       await deleteFaculty(id);
       await loadData();
+      setError('');
     } catch (err: any) {
-      setError(err.message);
+      setError('No se puede eliminar la facultad porque tiene datos relacionados');
     }
   };
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(''), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
   return (
     <Box sx={{ p: 3 }}>
@@ -176,7 +184,7 @@ const Faculties: React.FC = () => {
           placeholder="Buscar por nombre..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          sx={{ flexGrow: 1, minWidth: 200 }}
+          sx={{ flexGrow: 1, minWidth: 200 ,backgroundColor: 'white', border:0}}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -185,7 +193,7 @@ const Faculties: React.FC = () => {
             ),
           }}
         />
-        <FormControl sx={{ minWidth: 200 }}>
+        <FormControl sx={{ minWidth: 200 ,backgroundColor: 'white', border:0}}>
           <InputLabel>Filtrar por Universidad</InputLabel>
           <Select
             value={selectedUniversity}

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
+import { logoutService } from '../services/authService';
 
 interface User {
   id: string;
@@ -12,8 +13,9 @@ interface User {
 interface AuthContextType {
   user: User | null;
   token: string | null;
+  refreshToken: string | null;
   isLoading: boolean;
-  login: (user: User, token: string) => void;
+  login: (user: User, token: string, refreshToken: string) => void;
   logout: () => void;
 }
 
@@ -33,37 +35,58 @@ const isTokenExpired = (token: string): boolean => {
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [refreshToken, setRefreshToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const login = (user: User, token: string) => {
+  const login = (user: User, token: string, refreshToken: string) => {
+    if (user.role !== 'admin' && user.role !== 'teacher') {
+      throw new Error('Solo los usuarios con rol Admin o Teacher pueden iniciar sesión en esta plataforma.');
+    }
     setUser(user);
     setToken(token);
+    setRefreshToken(refreshToken);
     localStorage.setItem('user', JSON.stringify(user));
     localStorage.setItem('token', token);
+    localStorage.setItem('refreshToken', refreshToken);
   };
 
-  const logout = () => {
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
+  const logout = async () => {
+    const storedRefreshToken = localStorage.getItem('refreshToken');
+    try {
+      if (storedRefreshToken) {
+        await logoutService(storedRefreshToken);
+      }
+    } catch (error) {
+      console.error('Error al cerrar sesión en el servidor:', error);
+    } finally {
+      // Limpiar el estado y el almacenamiento local sin importar si el servidor falló
+      setUser(null);
+      setToken(null);
+      setRefreshToken(null);
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
+    }
   };
 
   useEffect(() => {
     const initializeAuth = () => {
       const storedUser = localStorage.getItem('user');
       const storedToken = localStorage.getItem('token');
+      const storedRefreshToken = localStorage.getItem('refreshToken');
       
-      if (storedUser && storedToken) {
+      if (storedUser && storedToken && storedRefreshToken) {
         // Verificar si el token ha expirado
         if (isTokenExpired(storedToken)) {
           // Token expirado, limpiar localStorage
           localStorage.removeItem('user');
           localStorage.removeItem('token');
+          localStorage.removeItem('refreshToken');
         } else {
           // Token válido, restaurar sesión
           setUser(JSON.parse(storedUser));
           setToken(storedToken);
+          setRefreshToken(storedRefreshToken);
         }
       }
       setIsLoading(false);
@@ -75,7 +98,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, token, refreshToken, isLoading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

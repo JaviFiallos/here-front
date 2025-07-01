@@ -46,7 +46,6 @@ import {
 
 interface CourseWithDetails extends Course {
   facultyName?: string;
-  teacherName?: string;
 }
 
 const Courses: React.FC = () => {
@@ -61,8 +60,6 @@ const Courses: React.FC = () => {
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [formData, setFormData] = useState<CreateCourseData>({
     name: '',
-    description: '',
-    teacherId: '',
     facultyId: '',
     semester: '',
   });
@@ -102,14 +99,12 @@ const Courses: React.FC = () => {
       // Filtrar solo profesores
       const teachersData = usersData.filter(user => user.role === 'teacher');
       
-      // Combinar cursos con nombres de facultades y profesores
+      // Combinar cursos con nombres de facultades
       const coursesWithDetails = coursesData.map(course => {
         const faculty = facultiesData.find(f => f.id === course.facultyId);
-        const teacher = teachersData.find(t => t.id === course.teacherId);
         return {
           ...course,
           facultyName: faculty?.name || 'Facultad no encontrada',
-          teacherName: teacher ? `${teacher.firstName} ${teacher.lastName}` : 'Profesor no asignado',
         };
       });
       
@@ -127,8 +122,6 @@ const Courses: React.FC = () => {
       setEditingCourse(course);
       setFormData({
         name: course.name,
-        description: course.description || '',
-        teacherId: course.teacherId || '',
         facultyId: course.facultyId,
         semester: course.semester,
       });
@@ -136,8 +129,6 @@ const Courses: React.FC = () => {
       setEditingCourse(null);
       setFormData({
         name: '',
-        description: '',
-        teacherId: '',
         facultyId: '',
         semester: '',
       });
@@ -150,8 +141,6 @@ const Courses: React.FC = () => {
     setEditingCourse(null);
     setFormData({
       name: '',
-      description: '',
-      teacherId: '',
       facultyId: '',
       semester: '',
     });
@@ -162,9 +151,17 @@ const Courses: React.FC = () => {
 
     try {
       if (editingCourse) {
-        await updateCourse(editingCourse.id, formData);
+        await updateCourse(editingCourse.id, {
+          name: formData.name,
+          facultyId: formData.facultyId,
+          semester: String(formData.semester),
+        });
       } else {
-        await createCourse(formData);
+        await createCourse({
+          name: formData.name,
+          facultyId: formData.facultyId,
+          semester: String(formData.semester),
+        });
       }
       await loadData();
       handleCloseDialog();
@@ -179,10 +176,18 @@ const Courses: React.FC = () => {
     try {
       await deleteCourse(id);
       await loadData();
+      setError('');
     } catch (err: any) {
-      setError(err.message);
+      setError('No se puede eliminar el curso porque tiene datos relacionados');
     }
   };
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(''), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
   return (
     <Box sx={{ p: 3 }}>
@@ -197,7 +202,7 @@ const Courses: React.FC = () => {
           placeholder="Buscar por nombre..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          sx={{ flexGrow: 1, minWidth: 200 }}
+          sx={{ flexGrow: 1, minWidth: 200 ,backgroundColor: 'white', border:0}}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -206,7 +211,7 @@ const Courses: React.FC = () => {
             ),
           }}
         />
-        <FormControl sx={{ minWidth: 200 }}>
+        <FormControl sx={{ minWidth: 200 ,backgroundColor: 'white', border:0}}>
           <InputLabel>Filtrar por Facultad</InputLabel>
           <Select
             value={selectedFaculty}
@@ -237,7 +242,6 @@ const Courses: React.FC = () => {
               <TableCell>N°</TableCell>
               <TableCell>Curso</TableCell>
               <TableCell>Facultad</TableCell>
-              <TableCell>Profesor</TableCell>
               <TableCell>Semestre</TableCell>
               <TableCell>Acciones</TableCell>
             </TableRow>
@@ -249,15 +253,9 @@ const Courses: React.FC = () => {
                 <TableCell>
                   <Box>
                     <Typography variant="subtitle2">{course.name}</Typography>
-                    {course.description && (
-                      <Typography variant="body2" color="text.secondary">
-                        {course.description}
-                      </Typography>
-                    )}
                   </Box>
                 </TableCell>
                 <TableCell>{course.facultyName}</TableCell>
-                <TableCell>{course.teacherName}</TableCell>
                 <TableCell>{course.semester}</TableCell>
                 <TableCell>
                   <IconButton
@@ -293,15 +291,6 @@ const Courses: React.FC = () => {
             margin="normal"
             required
           />
-          <TextField
-            label="Descripción"
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            fullWidth
-            margin="normal"
-            multiline
-            rows={3}
-          />
           <FormControl fullWidth margin="normal" required>
             <InputLabel>Facultad</InputLabel>
             <Select
@@ -316,21 +305,6 @@ const Courses: React.FC = () => {
               ))}
             </Select>
           </FormControl>
-          <FormControl fullWidth margin="normal">
-            <InputLabel>Profesor</InputLabel>
-            <Select
-              value={formData.teacherId}
-              label="Profesor"
-              onChange={(e) => setFormData({ ...formData, teacherId: e.target.value })}
-            >
-              <MenuItem value="">Sin asignar</MenuItem>
-              {teachers.map((teacher) => (
-                <MenuItem key={teacher.id} value={teacher.id}>
-                  {teacher.firstName} {teacher.lastName}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
           <FormControl fullWidth margin="normal" required>
             <InputLabel>Semestre</InputLabel>
             <Select
@@ -338,16 +312,16 @@ const Courses: React.FC = () => {
               label="Semestre"
               onChange={(e) => setFormData({ ...formData, semester: e.target.value })}
             >
-              <MenuItem value="Primero">Primero</MenuItem>
-              <MenuItem value="Segundo">Segundo</MenuItem>
-              <MenuItem value="Tercero">Tercero</MenuItem>
-              <MenuItem value="Cuarto">Cuarto</MenuItem>
-              <MenuItem value="Quinto">Quinto</MenuItem>
-              <MenuItem value="Sexto">Sexto</MenuItem>
-              <MenuItem value="Séptimo">Séptimo</MenuItem>
-              <MenuItem value="Octavo">Octavo</MenuItem>
-              <MenuItem value="Noveno">Noveno</MenuItem>
-              <MenuItem value="Décimo">Décimo</MenuItem>
+              <MenuItem value="1">Primero</MenuItem>
+              <MenuItem value="2">Segundo</MenuItem>
+              <MenuItem value="3">Tercero</MenuItem>
+              <MenuItem value="4">Cuarto</MenuItem>
+              <MenuItem value="5">Quinto</MenuItem>
+              <MenuItem value="6">Sexto</MenuItem>
+              <MenuItem value="7">Séptimo</MenuItem>
+              <MenuItem value="8">Octavo</MenuItem>
+              <MenuItem value="9">Noveno</MenuItem>
+              <MenuItem value="10">Décimo</MenuItem>
             </Select>
           </FormControl>
         </DialogContent>

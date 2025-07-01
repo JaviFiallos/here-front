@@ -32,10 +32,12 @@ const StyledDrawer = styled(Drawer, {
   flexShrink: 0,
   whiteSpace: 'nowrap',
   boxSizing: 'border-box',
+  borderRadius: 0,
   '& .MuiDrawer-paper': {
     width: open ? DRAWER_WIDTH_OPEN : DRAWER_WIDTH_CLOSED,
     overflowX: 'hidden',
-    backgroundColor: '#F4F1F8',
+    background: 'linear-gradient(45deg, #f8f9fa 30%, #e9ecef 90%)',
+    backdropFilter: 'blur(8px)', // Efecto glassmorphism
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
@@ -70,7 +72,7 @@ const Sidebar: React.FC = () => {
   };
 
   return (
-    <StyledDrawer variant="permanent" open={open} sx={{background:'#f1f1f1'}}>
+    <StyledDrawer variant="permanent" open={open}>
       {/* Botón para desplegar/plegar */}
       <Box
         sx={{

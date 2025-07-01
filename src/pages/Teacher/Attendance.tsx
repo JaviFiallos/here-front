@@ -8,11 +8,9 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Button,
   List,
   ListItem,
   ListItemText,
-  ButtonGroup,
 } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -20,16 +18,9 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { es } from 'date-fns/locale';
 import { getAllCourses, getSectionsByTeacher, type CourseSection } from '../../services/courseService';
 import { useAuth } from '../../context/AuthContext';
-
-// Mock data, como en MyStudents.tsx
-// TODO: Reemplazar con llamadas a la API.
-const mockStudents = [
-  { id: 'student-1', firstName: 'Juan', lastName: 'Perez' },
-  { id: 'student-2', firstName: 'Ana', lastName: 'Gomez' },
-  { id: 'student-3', firstName: 'Luis', lastName: 'Martinez' },
-];
-
-type AttendanceStatus = 'presente' | 'ausente' | 'tarde';
+import { getAttendanceBySchedule } from '../../services/attendanceService';
+import type { Attendance } from '../../services/attendanceService';
+import { getStudentsBySection } from '../../services/userService';
 
 interface EnrichedSection extends CourseSection {
   courseName: string;
@@ -39,7 +30,8 @@ const Attendance: React.FC = () => {
   const [mySections, setMySections] = useState<EnrichedSection[]>([]);
   const [selectedSection, setSelectedSection] = useState<string>('');
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
-  const [attendance, setAttendance] = useState<Record<string, AttendanceStatus>>({});
+  const [students, setStudents] = useState<any[]>([]);
+  const [attendance, setAttendance] = useState<Attendance[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { user } = useAuth();
@@ -72,26 +64,49 @@ const Attendance: React.FC = () => {
     loadData();
   }, [user]);
 
-  const handleStatusChange = (studentId: string, status: AttendanceStatus) => {
-    setAttendance(prev => ({ ...prev, [studentId]: status }));
+  useEffect(() => {
+    if (selectedSection) {
+      // Cargar estudiantes inscritos
+      getStudentsBySection(selectedSection)
+        .then(data => setStudents((data.enrollments || []).map((e: any) => e.student)))
+        .catch(() => setStudents([]));
+      // Cargar asistencia
+      getAttendanceBySchedule(selectedSection)
+        .then(setAttendance)
+        .catch(() => setAttendance([]));
+    } else {
+      setStudents([]);
+      setAttendance([]);
+    }
+  }, [selectedSection]);
+
+  // Función para obtener el estado de un estudiante
+  const getEstado = (studentId: string) => {
+    const registro = attendance.find(a => a.studentId === studentId);
+    if (!registro) return 'SIN REGISTRO';
+    if (registro.status === 'present') return 'PRESENTE';
+    if (registro.status === 'late') return 'TARDE';
+    if (registro.status === 'obsent') return 'AUSENTE';
+    // Agregar validación para otros posibles valores
+    return (registro.status as string).toUpperCase();
   };
 
-  const handleSaveAttendance = () => {
-    // TODO: Implementar la lógica para guardar la asistencia en el backend.
-    // Se necesitará un endpoint (ej: POST /api/attendance) que reciba
-    // el sectionId, la fecha, y un array de estudiantes con su estado.
-    alert('Asistencia guardada (simulación):\n' + JSON.stringify({
-      sectionId: selectedSection,
-      date: selectedDate?.toISOString().split('T')[0],
-      records: attendance,
-    }, null, 2));
+  const getColor = (estado: string) => {
+    if (estado === 'PRESENTE') return { color: 'green', bg: '#e8f5e9' };
+    if (estado === 'TARDE') return { color: 'orange', bg: '#fff3e0' };
+    if (estado === 'AUSENTE') return { color: 'red', bg: '#ffebee' };
+    return { color: 'gray', bg: '#f5f5f5' };
   };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
       <Box sx={{ p: 3 }}>
         <Typography variant="h4" gutterBottom>
-          Registro de Asistencia
+          Estado de Asistencia
+        </Typography>
+
+        <Typography variant="body1" color="text.primary" sx={{ mb: 3 }}>
+          Visualiza el estado de asistencia de los estudiantes
         </Typography>
 
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
@@ -122,48 +137,45 @@ const Attendance: React.FC = () => {
         {selectedSection && (
           <Box>
             <Typography variant="h6" gutterBottom>
-              Estudiantes
+              Estado de Asistencia - {students.length} estudiantes
             </Typography>
             <List>
-              {mockStudents.map(student => (
-                <ListItem key={student.id} divider>
-                  <ListItemText primary={`${student.firstName} ${student.lastName}`} />
-                  <ButtonGroup>
-                    <Button
-                      variant={attendance[student.id] === 'presente' ? 'contained' : 'outlined'}
-                      color="success"
-                      onClick={() => handleStatusChange(student.id, 'presente')}
+              {students.map(student => {
+                const estado = getEstado(student.id);
+                const { color, bg } = getColor(estado);
+                
+                return (
+                  <ListItem key={student.id} divider sx={{ backgroundColor: 'white' , borderRadius: 2, marginBottom: 1}}>
+                    <ListItemText 
+                      primary={`${student.firstName} ${student.lastName}`}
+                      secondary={`ID: ${student.id}`}
+                    />
+                    <Box
+                      sx={{
+                        color,
+                        background: bg,
+                        fontWeight: 'bold',
+                        display: 'inline-block',
+                        minWidth: 100,
+                        textAlign: 'center',
+                        borderRadius: 2,
+                        border: '1px solid #ddd',
+                        px: 2,
+                        py: 0.5,
+                      }}
                     >
-                      Presente
-                    </Button>
-                    <Button
-                      variant={attendance[student.id] === 'tarde' ? 'contained' : 'outlined'}
-                      color="warning"
-                      onClick={() => handleStatusChange(student.id, 'tarde')}
-                    >
-                      Tarde
-                    </Button>
-                    <Button
-                      variant={attendance[student.id] === 'ausente' ? 'contained' : 'outlined'}
-                      color="error"
-                      onClick={() => handleStatusChange(student.id, 'ausente')}
-                    >
-                      Ausente
-                    </Button>
-                  </ButtonGroup>
-                </ListItem>
-              ))}
+                      {estado}
+                    </Box>
+                  </ListItem>
+                );
+              })}
             </List>
-            <Box sx={{ mt: 3, textAlign: 'right' }}>
-              <Button 
-                variant="contained" 
-                color="primary"
-                onClick={handleSaveAttendance}
-                disabled={Object.keys(attendance).length === 0}
-              >
-                Guardar Asistencia
-              </Button>
-            </Box>
+            
+            {students.length === 0 && (
+              <Alert severity="info" sx={{ mt: 2 }}>
+                No hay estudiantes inscritos en esta sección.
+              </Alert>
+            )}
           </Box>
         )}
       </Box>

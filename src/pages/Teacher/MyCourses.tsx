@@ -79,23 +79,38 @@ const MyCourses: React.FC = () => {
       )}
 
       {myCourses.length > 0 && (
-        <TableContainer component={Paper} sx={{background:'#fff'}}>
+        <TableContainer 
+          component={Paper} 
+          sx={{ 
+            border: '1px solid #e0e0e0', 
+            borderRadius: '8px',
+            overflow: 'hidden',
+            boxShadow: 'none'
+          }}
+        >
           <Table>
             <TableHead>
-              <TableRow>
-                <TableCell  sx={{border:'1.5px solid #1976d2'}}>Nombre del Curso</TableCell>
-                <TableCell  sx={{border:'1.5px solid #1976d2'}}>Descripción</TableCell>
-                <TableCell  sx={{border:'1.5px solid #1976d2'}}>Semestre</TableCell>
-                <TableCell  sx={{border:'1.5px solid #1976d2'}}>Facultad</TableCell>
+              <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                <TableCell sx={{ fontWeight: 'bold', borderBottom: '2px solid #e0e0e0' }}>Nombre del Curso</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', borderBottom: '2px solid #e0e0e0' }}>Descripción</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', borderBottom: '2px solid #e0e0e0' }}>Semestre</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', borderBottom: '2px solid #e0e0e0' }}>Facultad</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {myCourses.map(course => (
-                <TableRow key={course.id}>
-                  <TableCell  sx={{border:'1.5px solid #1976d2'}}>{course.name}</TableCell>
-                  <TableCell  sx={{border:'1.5px solid #1976d2'}}>{course.description}</TableCell>
-                  <TableCell  sx={{border:'1.5px solid #1976d2'}}>{course.semester}</TableCell>
-                  <TableCell  sx={{border:'1.5px solid #1976d2'}}>{course.facultyName}</TableCell>
+              {myCourses.map((course) => (
+                <TableRow 
+                  key={course.id}
+                  hover
+                  sx={{ 
+                    '&:last-child td': { borderBottom: 0 },
+                    '&:hover': { backgroundColor: '#fafafa' }
+                  }}
+                >
+                  <TableCell sx={{ borderBottom: '1px solid #e0e0e0', py: 2 }}>{course.name}</TableCell>
+                  <TableCell sx={{ borderBottom: '1px solid #e0e0e0', py: 2 }}>{course.description}</TableCell>
+                  <TableCell sx={{ borderBottom: '1px solid #e0e0e0', py: 2 }}>{course.semester}</TableCell>
+                  <TableCell sx={{ borderBottom: '1px solid #e0e0e0', py: 2 }}>{course.facultyName}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -106,4 +121,4 @@ const MyCourses: React.FC = () => {
   );
 };
 
-export default MyCourses; 
+export default MyCourses;

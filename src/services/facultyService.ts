@@ -2,16 +2,15 @@ import { API_URL_BASE, apiRequest } from '../utils/api';
 
 export interface Faculty {
   id: string;
-  name: string;
-  description: string;
   universityId: string;
-  universityName?: string;
+  name: string;
+  description?: string;
 }
 
 export interface CreateFacultyData {
-  name: string;
-  description: string;
   universityId: string;
+  name: string;
+  description?: string;
 }
 
 export async function getAllFaculties(): Promise<Faculty[]> {
@@ -42,7 +41,7 @@ export async function getFacultiesByUniversity(universityId: string): Promise<Fa
 }
 
 export async function createFaculty(facultyData: CreateFacultyData): Promise<Faculty> {
-  const res = await apiRequest(`${API_URL_BASE}/faculties`, {
+  const res = await apiRequest(`${API_URL_BASE}/admin/faculties`, {
     method: 'POST',
     body: JSON.stringify(facultyData),
   });
@@ -54,7 +53,7 @@ export async function createFaculty(facultyData: CreateFacultyData): Promise<Fac
 }
 
 export async function updateFaculty(id: string, facultyData: CreateFacultyData): Promise<Faculty> {
-  const res = await apiRequest(`${API_URL_BASE}/faculties/${id}`, {
+  const res = await apiRequest(`${API_URL_BASE}/admin/faculties/${id}`, {
     method: 'PUT',
     body: JSON.stringify(facultyData),
   });
@@ -66,7 +65,7 @@ export async function updateFaculty(id: string, facultyData: CreateFacultyData):
 }
 
 export async function deleteFaculty(id: string): Promise<void> {
-  const res = await apiRequest(`${API_URL_BASE}/faculties/${id}`, {
+  const res = await apiRequest(`${API_URL_BASE}/admin/faculties/${id}`, {
     method: 'DELETE',
   });
   if (!res.ok) {

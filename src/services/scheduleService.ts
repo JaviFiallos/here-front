@@ -7,5 +7,6 @@ export async function getSchedulesBySection(sectionId: string) {
     throw new Error(data.message || 'Error al obtener los horarios de la sección');
   }
   console.log(data.data)
+  
   return data.data; // Ajusta según la estructura real de la respuesta
 } 

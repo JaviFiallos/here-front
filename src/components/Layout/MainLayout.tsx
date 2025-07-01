@@ -27,10 +27,10 @@ const MainLayout: React.FC = () => {
   const title = getTitleFromPath(location.pathname);
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', backgroundColor: '#fff' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'   }}>
       {/* Sidebar */}
       <Box sx={{
-        borderRight: '1.5px solid #e3e3e3',
+        //borderRight: '1.5px solid #e3e3e3',
         backgroundColor: '#fff',
         minHeight: '100vh',
         display: 'flex',

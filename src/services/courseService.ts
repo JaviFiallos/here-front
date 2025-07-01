@@ -11,21 +11,16 @@ export interface CourseSection {
 export interface Course {
   id: string;
   name: string;
-  description?: string;
   facultyId: string;
-  teacherId?: string;
   semester: string;
   createdAt: string;
   updatedAt: string;
-  courseSections?: CourseSection[];
 }
 
 export interface CreateCourseData {
   name: string;
-  description: string;
-  teacherId: string;
   facultyId: string;
-  semester: string;
+  semester: string; // debe ser string numérico
 }
 
 export async function getAllCourses(): Promise<Course[]> {
@@ -58,7 +53,7 @@ export async function createCourse(courseData: CreateCourseData): Promise<Course
   return data.data;
 }
 
-export async function updateCourse(id: string, courseData: CreateCourseData): Promise<Course> {
+export async function updateCourse(id: string, courseData: Partial<CreateCourseData>): Promise<Course> {
   const res = await apiRequest(`${API_URL_BASE}/courses/${id}`, {
     method: 'PUT',
     body: JSON.stringify(courseData),

@@ -1,7 +1,8 @@
 // src/pages/Login.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Button, Typography, Paper, TextField, Alert } from '@mui/material';
+import { Box, Button, Typography, Paper, TextField, Alert, Avatar, Stack } from '@mui/material';
+import PersonIcon from '@mui/icons-material/Person';
 import { useAuth } from '../../context/AuthContext';
 import { loginService } from '../../services/authService';
 
@@ -28,8 +29,9 @@ const Login: React.FC = () => {
       const data = await loginService(email, password);
       // Guardar usuario y token en contexto y localStorage
       const user = data.data.user;
-      const token = data.data.token.accessToken;
-      login(user, token);
+      const accessToken = data.data.token.accessToken;
+      const refreshToken = data.data.token.refreshToken;
+      login(user, accessToken, refreshToken);
       navigate('/dashboard/profile');
     } catch (err: any) {
       setError(err.message || 'Usuario o contraseña incorrectos');
@@ -62,20 +64,29 @@ const Login: React.FC = () => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#f5f5f5',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'   
       }}
     >
       <Paper
-        elevation={3}
+        elevation={6}
         sx={{
-          padding: 4,
-          width: 320,
+          padding: 5,
+          width: 380,
+          borderRadius: 5,
           textAlign: 'center',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+          background: 'rgba(255,255,255,0.97)',
+          backdropFilter: 'blur(8px)',
         }}
       >
-        <Typography variant="h5" gutterBottom>
-          Iniciar Sesión
-        </Typography>
+        <Stack alignItems="center" spacing={2} sx={{ mb: 2 }}>
+          <Avatar sx={{ width: 80, height: 80, bgcolor: 'primary.main', boxShadow: '0 4px 16px rgba(0,0,0,0.10)' }}>
+            <PersonIcon sx={{ fontSize: 48 }} />
+          </Avatar>
+          <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: 'text.primary' }}>
+            Iniciar Sesión
+          </Typography>
+        </Stack>
         <form onSubmit={handleLogin}>
           <TextField
             label="Correo electrónico"
@@ -85,6 +96,7 @@ const Login: React.FC = () => {
             fullWidth
             margin="normal"
             required
+            size="medium"
           />
           <TextField
             label="Contraseña"
@@ -94,13 +106,14 @@ const Login: React.FC = () => {
             fullWidth
             margin="normal"
             required
+            size="medium"
           />
           {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
           <Button
             variant="contained"
             fullWidth
             type="submit"
-            sx={{ mt: 2 }}
+            sx={{ mt: 3, py: 1.2, fontSize: '1.1rem', fontWeight: 'bold', boxShadow: '0 2px 8px rgba(0,0,0,0.10)' }}
             disabled={loading}
           >
             {loading ? 'Entrando...' : 'Entrar'}
@@ -109,10 +122,10 @@ const Login: React.FC = () => {
         <Button
           variant="text"
           fullWidth
-          sx={{ mt: 1 }}
+          sx={{ mt: 2, color: 'primary.main', fontWeight: 'bold' }}
           // Sin funcionalidad aún
         >
-          Registrarse
+          {/* Registrarse */}
         </Button>
       </Paper>
     </Box>
