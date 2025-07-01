@@ -10,6 +10,13 @@ const getTitleFromPath = (pathname: string): string => {
   switch (pathname) {
     case '/dashboard/home':
       return 'Inicio';
+    case '/dashboard/estudiantes':
+      return 'Mis Estudiantes por Sección';
+    case '/dashboard/mis-cursos':
+      return 'Mis Cursos';
+    case '/dashboard/asistencia':
+      return 'Registro de Asistencia';
+    // Agrega aquí más rutas según tu app
     default:
       return '';
   }
@@ -20,24 +27,34 @@ const MainLayout: React.FC = () => {
   const title = getTitleFromPath(location.pathname);
 
   return (
-    <Box sx={{ display: 'flex', height: '100vh' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'   }}>
       {/* Sidebar */}
-      <Sidebar />
+      <Box sx={{
+        //borderRight: '1.5px solid #e3e3e3',
+        backgroundColor: '#fff',
+        minHeight: '100vh',
+        display: 'flex',
+      }}>
+        <Sidebar />
+      </Box>
 
       {/* Contenido principal */}
-      <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{ flexGrow: 1, p: 3 }}>
         {/* Header dinámico */}
-        <Header title={title} />
+        {/* <Header title={title} /> */}
 
-        {/* Contenido */}
-        <Box sx={{ flexGrow: 1, p: 3, overflowY: 'auto', backgroundColor: '#FFF6F3' }}>
-
+        {/* Contenedor principal flexible */}
+        <Box
+          sx={{
+            borderRadius: 4,
+            p: 3,
+            mt: 2,
+          }}
+        >
           <Outlet />
-          
         </Box>
-
-        {/* Footer fijo dentro del flujo */}
-        <Footer />
+        {/* Footer si lo necesitas */}
+        {/* <Footer /> */}
       </Box>
     </Box>
   );

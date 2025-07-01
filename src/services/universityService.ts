@@ -1,28 +1,24 @@
-import { API_URL_BASE } from '../utils/api';
+import { API_URL_BASE, apiRequest } from '../utils/api';
 
 export interface University {
   id: string;
   name: string;
-  createdAt: string;
-  updatedAt: string;
+  description: string;
+  address: string;
+  phone: string;
+  email: string;
 }
 
 export interface CreateUniversityData {
   name: string;
+  description: string;
+  address: string;
+  phone: string;
+  email: string;
 }
 
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
-  return {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`,
-  };
-};
-
 export async function getAllUniversities(): Promise<University[]> {
-  const res = await fetch(`${API_URL_BASE}/admin/universities`, {
-    headers: getAuthHeaders(),
-  });
+  const res = await apiRequest(`${API_URL_BASE}/universities`);
   const data = await res.json();
   if (!res.ok) {
     throw new Error(data.message || 'Error al obtener universidades');
@@ -31,9 +27,7 @@ export async function getAllUniversities(): Promise<University[]> {
 }
 
 export async function getUniversityById(id: string): Promise<University> {
-  const res = await fetch(`${API_URL_BASE}/universities/${id}`, {
-    headers: getAuthHeaders(),
-  });
+  const res = await apiRequest(`${API_URL_BASE}/admin/universities/${id}`);
   const data = await res.json();
   if (!res.ok) {
     throw new Error(data.message || 'Error al obtener universidad');
@@ -42,9 +36,8 @@ export async function getUniversityById(id: string): Promise<University> {
 }
 
 export async function createUniversity(universityData: CreateUniversityData): Promise<University> {
-  const res = await fetch(`${API_URL_BASE}/admin/universities`, {
+  const res = await apiRequest(`${API_URL_BASE}/admin/universities`, {
     method: 'POST',
-    headers: getAuthHeaders(),
     body: JSON.stringify(universityData),
   });
   const data = await res.json();
@@ -55,9 +48,8 @@ export async function createUniversity(universityData: CreateUniversityData): Pr
 }
 
 export async function updateUniversity(id: string, universityData: CreateUniversityData): Promise<University> {
-  const res = await fetch(`${API_URL_BASE}/admin/universities/${id}`, {
+  const res = await apiRequest(`${API_URL_BASE}/admin/universities/${id}`, {
     method: 'PUT',
-    headers: getAuthHeaders(),
     body: JSON.stringify(universityData),
   });
   const data = await res.json();
@@ -68,9 +60,8 @@ export async function updateUniversity(id: string, universityData: CreateUnivers
 }
 
 export async function deleteUniversity(id: string): Promise<void> {
-  const res = await fetch(`${API_URL_BASE}/admin/universities/${id}`, {
+  const res = await apiRequest(`${API_URL_BASE}/admin/universities/${id}`, {
     method: 'DELETE',
-    headers: getAuthHeaders(),
   });
   if (!res.ok) {
     const data = await res.json();

@@ -42,7 +42,6 @@ const Users: React.FC = () => {
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState<string>('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -79,15 +78,12 @@ const Users: React.FC = () => {
   }, [searchTerm, selectedRole, users]);
 
   const loadUsers = async () => {
-    setLoading(true);
     try {
       const data = await getAllUsers();
       setUsers(data);
       setError('');
     } catch (err: any) {
       setError(err.message);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -180,7 +176,7 @@ const Users: React.FC = () => {
           placeholder="Buscar por nombre o email..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          sx={{ flexGrow: 1, minWidth: 200 }}
+          sx={{ flexGrow: 1, minWidth: 200 ,backgroundColor: 'white', border:0}}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -189,7 +185,7 @@ const Users: React.FC = () => {
             ),
           }}
         />
-        <FormControl sx={{ minWidth: 150 }}>
+        <FormControl sx={{ minWidth: 150 ,backgroundColor: 'white', border:0}}>
           <InputLabel>Filtrar por Rol</InputLabel>
           <Select
             value={selectedRole}
@@ -220,7 +216,7 @@ const Users: React.FC = () => {
               <TableCell>Nombre</TableCell>
               <TableCell>Apellido</TableCell>
               <TableCell>Rol</TableCell>
-              <TableCell>Acciones</TableCell>
+              {/* <TableCell>Acciones</TableCell> */}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -231,14 +227,14 @@ const Users: React.FC = () => {
                 <TableCell>{user.firstName}</TableCell>
                 <TableCell>{user.lastName}</TableCell>
                 <TableCell>{roleTranslations[user.role]}</TableCell>
-                <TableCell>
+                {/* <TableCell>
                   <IconButton onClick={() => handleOpenDialog(user)}>
                     <EditIcon />
                   </IconButton>
                   <IconButton onClick={() => handleDelete(user.id)}>
                     <DeleteIcon />
                   </IconButton>
-                </TableCell>
+                </TableCell> */}
               </TableRow>
             ))}
           </TableBody>
