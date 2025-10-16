@@ -1,134 +1,85 @@
-# Sistema de Gestión Académica y Asistencia
+%% Diagrama de estructura de directorios del proyecto ClipperBarberShop
+graph TD
 
-Este proyecto es una plataforma web para la gestión académica universitaria y el control de asistencia mediante QR, compuesta por un **backend en Go (Fiber)** y un **frontend en React (Vite)**. Permite la administración de usuarios, universidades, facultades, cursos, secciones, horarios y el registro de asistencia de estudiantes a través de una app móvil.
+A[src/main/java/apex/code/clipperBarberShop/] --> A1[ClipperBarberShopApplication.java]
+A --> A2[SecurityConfig.java]
+A --> B[auth/ - Módulo de Autenticación]
+A --> C[register/ - Módulo de Registro]
+A --> D[Entities/ - Entidades del Dominio]
+A --> E[security/ - Configuración de Seguridad]
+A --> F[shared/ - Componentes Compartidos]
 
----
+B --> B1[adapters/]
+B1 --> B11[in/web/]
+B11 --> B111[AuthController.java]
+B1 --> B12[out/]
+B12 --> B121[AuthUserRepositoryAdapter.java]
+B12 --> B122[PasswordEncoderAdapter.java]
+B12 --> B123[TokenProviderAdapter.java]
 
-## Características principales
+B --> B2[application/]
+B2 --> B21[dto/]
+B21 --> B211[AuthRequest.java]
+B21 --> B212[AuthResponse.java]
+B2 --> B22[service/]
+B22 --> B221[AuthService.java]
 
-- **Autenticación JWT** (admin y docentes)
-- **Gestión de usuarios** (admin, docentes, estudiantes)
-- **CRUD de universidades, facultades, cursos y secciones**
-- **Gestión de horarios (schedules) por sección**
-- **Registro y visualización de asistencia** (por QR, desde app móvil)
-- **Visualización de asistencia por sección y horario**
-- **Panel de perfil y experiencia de usuario moderna**
-- **Manejo avanzado de errores y validaciones**
-- **Protección de rutas y roles**
+B --> B3[domain/]
+B3 --> B31[port/]
+B31 --> B311[in/]
+B311 --> B3111[AuthUseCase.java]
+B31 --> B312[out/]
+B312 --> B3121[AuthUserRepositoryPort.java]
+B312 --> B3122[PasswordEncoderPort.java]
+B312 --> B3123[TokenProviderPort.java]
+B --> B4[JwtAuthenticationFilter.java]
+B --> B5[JwtTokenProvider.java]
+B --> B6[README.md]
 
----
+C --> C1[adapters/]
+C1 --> C11[in/web/]
+C11 --> C111[RegistroController.java]
+C1 --> C12[out/persistence/]
+C12 --> C121[EmpresaPersistenceAdapter.java]
+C12 --> C122[SpringDataEmpresaRepository.java]
+C12 --> C123[SpringDataUsuarioRepository.java]
+C12 --> C124[UsuarioPersistenceAdapter.java]
 
-## Tecnologías utilizadas
+C --> C2[application/]
+C2 --> C21[dto/]
+C21 --> C211[ClienteRequest.java]
+C21 --> C212[EmpleadoRequest.java]
+C21 --> C213[RegistroRequest.java]
+C2 --> C22[service/]
+C22 --> C221[impl/]
+C221 --> C2211[RegistroServiceImpl.java]
+C22 --> C222[RegistroService.java]
 
-- **Backend:** Go, Fiber, PostgreSQL, JWT, GORM, Docker (opcional)
-- **Frontend:** React, Vite, TypeScript, Material UI, Context API
-- **Otros:** date-fns, axios/fetch, ESLint, Prettier
+C --> C3[domain/]
+C3 --> C31[port/out/]
+C31 --> C311[EmpresaRepositoryPort.java]
+C31 --> C312[UsuarioRepositoryPort.java]
+C --> C4[README.md]
 
----
+D --> D1[ConfiguracionEmpresa.java]
+D --> D2[Disponibilidad.java]
+D --> D3[Empresa.java]
+D --> D4[LogActividad.java]
+D --> D5[Pago.java]
+D --> D6[Plan.java]
+D --> D7[Promocion.java]
+D --> D8[Resenia.java]
+D --> D9[Reserva.java]
+D --> D10[Servicio.java]
+D --> D11[Suscripcion.java]
+D --> D12[Usuario.java]
 
-## Estructura del proyecto
+E --> E1[DatabaseUserDetailsService.java]
+E --> E2[RestAccessDeniedHandler.java]
+E --> E3[RestAuthenticationEntryPoint.java]
 
-```
-/here-front         # Frontend React (Vite)
-/here-backend       # Backend Go (Fiber)
-```
+F --> F1[ApiResponse.java]
+F --> F2[GlobalExceptionHandler.java]
 
----
-
-## Instalación y ejecución
-
-### 1. Clonar el repositorio
-
-```bash
-git clone https://github.com/tu-usuario/tu-repo.git
-cd tu-repo
-```
-
-### 2. Backend (Go + Fiber)
-
-#### Requisitos
-- Go 1.20+
-- PostgreSQL
-
-#### Configuración
-
-1. Copia el archivo `.env.example` a `.env` y configura tus variables (DB, JWT, etc).
-2. Ejecuta las migraciones y carga datos iniciales si es necesario.
-
-#### Ejecución
-
-```bash
-cd here-backend
-go mod tidy
-go run main.go
-```
-
-### 3. Frontend (React + Vite)
-
-#### Requisitos
-- Node.js 18+
-- npm o yarn
-
-#### Configuración
-
-1. Copia el archivo `.env.example` a `.env` y configura la URL del backend (`VITE_API_URL`).
-
-#### Ejecución
-
-```bash
-cd here-front
-npm install
-npm run dev
-```
-
----
-
-## Uso
-
-1. Inicia sesión como **admin** o **docente**.
-2. Administra universidades, facultades, cursos, secciones y usuarios desde el panel.
-3. Crea horarios para las secciones.
-4. Los estudiantes marcan asistencia desde la app móvil escaneando el QR generado por el docente.
-5. Los docentes pueden visualizar la asistencia por sección y horario.
-
----
-
-## Estructura de la base de datos (resumida)
-
-- **users**: id, email, firstName, lastName, role
-- **universities, faculties, courses, sections**
-- **schedules**: id, section_id, day_of_week, start_time, end_time
-- **attendance**: id, student_id, schedule_id, status, date
-
----
-
-## Seguridad
-
-- Autenticación y autorización por roles (admin, teacher, student)
-- Rutas protegidas en backend y frontend
-- Manejo seguro de tokens y refresh
-
----
-
-## Personalización
-
-- Puedes adaptar los roles, entidades y lógica de asistencia según las necesidades de tu institución.
-- El frontend es fácilmente personalizable gracias a Material UI y Vite.
-
----
-
-## Contribuciones
-
-¡Las contribuciones son bienvenidas!  
-Abre un issue o un pull request para sugerencias, mejoras o reportar bugs.
-
----
-
-## Licencia
-
-MIT
-
----
-
-**Desarrollado por [Tu Nombre/Equipo]**  
-Contacto: [jeffstalim@gmail.com.com]
+root1[src/main/resources/] --> root1a[application.properties]
+root2[src/test/java/apex/code/clipperBarberShop/] --> root2a[ClipperBarberShopApplicationTests.java]
